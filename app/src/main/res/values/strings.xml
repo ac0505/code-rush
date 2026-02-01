@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Code Rush</string>
+    <string name="play">Play</string>
+    <string name="single_player">Single Player</string>
+    <string name="multi_player">Multi Player</string>
+    <string name="options">Options</string>
+    <string name="credits">Credits</string>
+    <string name="easy">Easy</string>
+</resources>

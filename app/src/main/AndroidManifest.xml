@@ -12,7 +12,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CodeRush">
         <activity
-            android:name=".Easy"
+            android:name=".multiplayer.MultiScore"
+            android:exported="false" />
+        <activity
+            android:name=".multiplayer.MultiCreate"
+            android:exported="false" />
+        <activity
+            android:name=".multiplayer.MultiLogin"
+            android:exported="false" />
+        <activity
+            android:name=".singleplayer.SingleScore"
+            android:exported="false" />
+        <activity
+            android:name=".modes.Hard"
+            android:exported="false" />
+        <activity
+            android:name=".modes.Normal"
+            android:exported="false" />
+        <activity
+            android:name=".modes.Easy"
             android:exported="false" />
         <activity
             android:name=".Credits"

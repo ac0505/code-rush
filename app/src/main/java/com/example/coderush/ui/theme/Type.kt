@@ -4,7 +4,28 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.googlefonts.Font
+import com.example.coderush.R
+
+
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+
+//val fontName = GoogleFont("Jersey 20")
+
+val Jersey20 = FontFamily(
+    Font(googleFont = GoogleFont("Jersey 20"), fontProvider = provider)
+)
+
+val JockeyOne = FontFamily(
+    Font(googleFont = GoogleFont("Jockey One"), fontProvider = provider)
+)
+
 
 // Set of Material typography styles to start with
 val Typography = Typography(

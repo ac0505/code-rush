@@ -1,0 +1,173 @@
+package com.example.coderush.modes
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.coderush.AnswerButton
+import com.example.coderush.GameTimer
+import com.example.coderush.Question
+import com.example.coderush.R
+import com.example.coderush.singleplayer.SingleScore
+import com.example.coderush.multiplayer.MultiScore
+import com.example.coderush.questions.normalQuestions
+import com.example.coderush.ui.theme.Jersey20
+import com.example.coderush.ui.theme.JockeyOne
+import kotlinx.coroutines.delay
+
+class Normal : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val rawMode = intent.getStringExtra("MODE") ?: "single"
+        val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
+
+        // Get time
+        val timeInSeconds = intent.getIntExtra("TIME", 30) // default to 30s
+
+        // Shuffle questions
+        val shuffledQuestions = normalQuestions.shuffled()
+        setContent {
+            NormalGameScreen(mode = mode, totalTime = timeInSeconds, questions = shuffledQuestions)
+        }
+    }
+}
+
+@Composable
+fun NormalGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
+    var currentQuestionIndex by remember { mutableStateOf(0) }
+    var selectedAnswer by remember { mutableStateOf<Int?>(null) }
+    var showResult by remember { mutableStateOf(false) }
+    var moveToNext by remember { mutableStateOf(false) }
+    var score by remember { mutableStateOf(0) }
+
+    val question = questions[currentQuestionIndex]
+    val context = LocalContext.current
+
+    LaunchedEffect(moveToNext) {
+        if (moveToNext) {
+            delay(1000)
+            selectedAnswer = null
+            showResult = false
+
+            if (currentQuestionIndex + 1 < normalQuestions.size) {
+                currentQuestionIndex++
+            } else {
+                val targetActivity =
+                    if (mode == "multi") MultiScore::class.java else SingleScore::class.java
+
+                context.startActivity(
+                    Intent(context, targetActivity).apply {
+                        putExtra("SCORE", score)
+                    }
+                )
+                (context as? ComponentActivity)?.finish()
+            }
+            moveToNext = false
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.game_bg),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // TIMER
+            /*Text(
+                text = formatTime(currentTime), //00:30
+                color = Color(0xFF003B8E),
+                fontFamily = Jersey20,
+                fontSize = 48.sp,
+                modifier = Modifier.padding(top = 32.dp, bottom = 10.dp)
+            )*/
+            // Countdown timer
+            GameTimer(
+                totalTime = totalTime,
+                onTimeUp = {
+                    val targetActivity = if (mode.lowercase() == "multi") MultiScore::class.java else SingleScore::class.java
+                    context.startActivity(
+                        Intent(context, targetActivity).apply {
+                            putExtra("SCORE", score)
+                        }
+                    )
+                    (context as? ComponentActivity)?.finish()
+                }
+            )
+
+            // QUESTION BOX
+            Box(
+                modifier = Modifier
+                    .height(260.dp)
+                    .fillMaxWidth(0.9f)
+                    .border(2.dp, Color.White, RoundedCornerShape(24.dp))
+                    .background(Color(0xFF003B8E), RoundedCornerShape(24.dp))
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Score: $score",
+                    color = Color.White,
+                    fontFamily = Jersey20,
+                    fontSize = 24.sp,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+
+                Text(
+                    text = question.question,
+                    color = Color.White,
+                    fontFamily = JockeyOne,
+                    fontSize = 20.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                question.choices.forEachIndexed { index, choice ->
+                    AnswerButton(
+                        text = choice,
+                        isSelected = selectedAnswer == index,
+                        isCorrect = index == question.correctIndex,
+                        showResult = showResult
+                    ) {
+                        if (selectedAnswer == null) {
+                            selectedAnswer = index
+                            showResult = true
+                            if (index == question.correctIndex) score++
+                            moveToNext = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

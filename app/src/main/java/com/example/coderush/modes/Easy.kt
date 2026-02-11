@@ -29,7 +29,6 @@ import com.example.coderush.questions.easyQuestions
 import com.example.coderush.ui.theme.Jersey20
 import com.example.coderush.ui.theme.JockeyOne
 import kotlinx.coroutines.delay
-import java.sql.Time
 
 class Easy : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +36,7 @@ class Easy : ComponentActivity() {
 
         // Get mode from Intent extras; default to "single"
         val rawMode = intent.getStringExtra("MODE") ?: "single"
+        val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
         val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
 
         // Get time
@@ -45,24 +45,31 @@ class Easy : ComponentActivity() {
         // Shuffle questions
         val shuffledQuestions = easyQuestions.shuffled()
         setContent {
-            EasyGameScreen(mode = mode, totalTime = timeInSeconds, questions = shuffledQuestions)
+            EasyGameScreen(
+                mode = mode,
+                totalTime = timeInSeconds,
+                questions = shuffledQuestions,
+                username = username
+            )
         }
     }
 }
 
 @Composable
-fun EasyGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
-    var currentQuestionIndex by remember { mutableStateOf(0) }
+fun EasyGameScreen(
+    mode: String,
+    totalTime: Int,
+    questions: List<Question>,
+    username: String
+) {
+    var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     var showResult by remember { mutableStateOf(false) }
     var moveToNext by remember { mutableStateOf(false) }
-    var score by remember { mutableStateOf(0) }
+    var score by remember { mutableIntStateOf(0) }
 
     val question = questions[currentQuestionIndex]
     val context = LocalContext.current
-
-    // Timer finished flag
-    var timerFinished by remember { mutableStateOf(false) }
 
     // Auto-next question / end game logic
     LaunchedEffect(moveToNext) {
@@ -79,6 +86,7 @@ fun EasyGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
                 context.startActivity(
                     Intent(context, targetActivity).apply {
                         putExtra("SCORE", score)
+                        putExtra("USERNAME", username)
                     }
                 )
                 (context as? ComponentActivity)?.finish()
@@ -117,6 +125,7 @@ fun EasyGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
                     context.startActivity(
                         Intent(context, targetActivity).apply {
                             putExtra("SCORE", score)
+                            putExtra("USERNAME", username)
                         }
                     )
                     (context as? ComponentActivity)?.finish()

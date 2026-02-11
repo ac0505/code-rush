@@ -35,6 +35,7 @@ class Hard : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val rawMode = intent.getStringExtra("MODE") ?: "single"
+        val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
         val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
 
         val timeInSeconds = intent.getIntExtra("TIME", 30) //default to 30s
@@ -42,18 +43,28 @@ class Hard : ComponentActivity() {
         // Shuffle questions
         val shuffledQuestions = hardQuestions.shuffled()
         setContent {
-            HardGameScreen(mode = mode, totalTime = timeInSeconds, questions = shuffledQuestions)
+            HardGameScreen(
+                mode = mode,
+                totalTime = timeInSeconds,
+                questions = shuffledQuestions,
+                username = username
+            )
         }
     }
 }
 
 @Composable
-fun HardGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
-    var currentQuestionIndex by remember { mutableStateOf(0) }
+fun HardGameScreen(
+    mode: String,
+    totalTime: Int,
+    questions: List<Question>,
+    username: String
+) {
+    var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     var showResult by remember { mutableStateOf(false) }
     var moveToNext by remember { mutableStateOf(false) }
-    var score by remember { mutableStateOf(0) }
+    var score by remember { mutableIntStateOf(0) }
 
     val question = questions[currentQuestionIndex]
     val context = LocalContext.current
@@ -73,6 +84,7 @@ fun HardGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
                 context.startActivity(
                     Intent(context, targetActivity).apply {
                         putExtra("SCORE", score)
+                        putExtra("USERNAME", username)
                     }
                 )
                 (context as? ComponentActivity)?.finish()
@@ -94,14 +106,6 @@ fun HardGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TIMER
-            /*Text(
-                text = formatTime(currentTime), //00:30
-                color = Color(0xFF003B8E),
-                fontFamily = Jersey20,
-                fontSize = 48.sp,
-                modifier = Modifier.padding(top = 32.dp, bottom = 10.dp)
-            )*/
             // Countdown timer
             GameTimer(
                 totalTime = totalTime,
@@ -110,6 +114,7 @@ fun HardGameScreen(mode: String, totalTime: Int, questions: List<Question>) {
                     context.startActivity(
                         Intent(context, targetActivity).apply {
                             putExtra("SCORE", score)
+                            putExtra("USERNAME", username)
                         }
                     )
                     (context as? ComponentActivity)?.finish()

@@ -16,9 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.coderush.ui.theme.Jersey20
 
 class Options : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,8 +57,8 @@ fun OptionScreen() {
             // Title
             Text(
                 text = "Options",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 60.sp,
+                fontFamily = Jersey20,
                 color = white
             )
 
@@ -81,8 +81,8 @@ fun OptionScreen() {
                 ) {
                     Text(
                         text = "Volume",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        fontFamily = Jersey20,
                         color = white
                     )
                 }

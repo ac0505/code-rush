@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.R
 import com.example.coderush.Difficulty
+import com.example.coderush.ui.theme.JockeyOne
 
 class MultiLogin : ComponentActivity() {
 
@@ -84,7 +85,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                placeholder = { Text("Username", color = Color(0xFF003B8E)) },
+                placeholder = { Text("Username", color = Color(0xFF003B8E), fontFamily = JockeyOne) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,7 +106,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("Password", color = Color(0xFF003B8E)) },
+                placeholder = { Text("Password", color = Color(0xFF003B8E), fontFamily = JockeyOne) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -133,7 +134,7 @@ fun LoginScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                 border = BorderStroke(2.dp, Color.White)
             ) {
-                Text("LOGIN", color = Color.White, fontSize = 18.sp)
+                Text("LOGIN", color = Color.White, fontSize = 26.sp, fontFamily = JockeyOne)
             }
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.MainActivity
@@ -73,26 +73,24 @@ fun MultiScoreScreen(
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 "WINNER:",
-                fontSize = 36.sp,
+                fontSize = 60.sp,
                 fontFamily = Jersey20,
-                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Start,
                 color = Color.White
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                "\"$username\"",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Medium,
+                username,
+                fontSize = 48.sp,
+                fontFamily = Jersey20,
                 color = Color.White
             )
 
@@ -100,8 +98,9 @@ fun MultiScoreScreen(
 
             Text(
                 "SCORE:",
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 60.sp,
+                fontFamily = Jersey20,
+                textAlign = TextAlign.Start,
                 color = Color.White
             )
 
@@ -110,7 +109,7 @@ fun MultiScoreScreen(
             Text(
                 "$score",
                 fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = Jersey20,
                 color = Color.White
             )
 
@@ -119,24 +118,32 @@ fun MultiScoreScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(start = 20.dp, end = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
                     onClick = onPlayClick,
-                    modifier = Modifier.width(150.dp).height(50.dp),
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(60.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                     border = BorderStroke(2.dp, Color.White)
-                ) { Text("PLAY AGAIN", fontSize = 16.sp) }
+                ) {
+                    Text("PLAY AGAIN", fontSize = 26.sp, fontFamily = Jersey20)
+                }
 
                 Button(
                     onClick = onMenuClick,
-                    modifier = Modifier.width(150.dp).height(50.dp),
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(60.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                     border = BorderStroke(2.dp, Color.White)
-                ) { Text("MAIN MENU", fontSize = 16.sp) }
+                ) {
+                    Text("MAIN MENU", fontSize = 26.sp, fontFamily = Jersey20)
+                }
             }
         }
     }

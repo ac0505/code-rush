@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.R
+import com.example.coderush.ui.theme.JockeyOne
 
 class MultiCreate : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +80,7 @@ fun CreateAccountScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                placeholder = { Text("Username", color = Color(0xFF003B8E)) },
+                placeholder = { Text("Username", color = Color(0xFF003B8E), fontFamily = JockeyOne) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +102,7 @@ fun CreateAccountScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("Password", color = Color(0xFF003B8E)) },
+                placeholder = { Text("Password", color = Color(0xFF003B8E), fontFamily = JockeyOne) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -124,7 +125,7 @@ fun CreateAccountScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                placeholder = { Text("Confirm Password", color = Color(0xFF003B8E)) },
+                placeholder = { Text("Confirm Password", color = Color(0xFF003B8E), fontFamily = JockeyOne) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -157,8 +158,9 @@ fun CreateAccountScreen(
             ) {
                 Text(
                     text = "CREATE ACCOUNT",
+                    fontFamily = JockeyOne,
                     color = Color.White,
-                    fontSize = 18.sp
+                    fontSize = 26.sp
                 )
             }
 

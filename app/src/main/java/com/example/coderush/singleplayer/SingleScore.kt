@@ -15,12 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.Difficulty
 import com.example.coderush.MainActivity
 import com.example.coderush.R
+import com.example.coderush.ui.theme.Jersey20
 
 class SingleScore : ComponentActivity() {
 
@@ -74,8 +74,8 @@ fun ScoreScreen(
             // First text
             Text(
                 "MY SCORE:",
-                fontSize =55.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 60.sp,
+                fontFamily = Jersey20,
                 color = Color.White
             )
 
@@ -85,7 +85,7 @@ fun ScoreScreen(
             Text(
                 "$score",
                 fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = Jersey20,
                 color = Color.White
             )
 
@@ -106,7 +106,7 @@ fun ScoreScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                     border = BorderStroke(2.dp, Color.White)
                 ) {
-                    Text("PLAY AGAIN", fontSize = 20.sp)
+                    Text("PLAY AGAIN", fontSize = 26.sp, fontFamily = Jersey20)
                 }
 
                 Button(
@@ -118,7 +118,7 @@ fun ScoreScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                     border = BorderStroke(2.dp, Color.White)
                 ) {
-                    Text("MAIN MENU", fontSize = 20.sp)
+                    Text("MAIN MENU", fontSize = 26.sp, fontFamily = Jersey20)
                 }
             }
         }

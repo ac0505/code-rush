@@ -36,7 +36,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // ---------- NAVIGATION FUNCTIONS ----------
 
     private fun openDifficultyScreen(mode: String) {
         val intent = Intent(this, Difficulty::class.java)
@@ -59,7 +58,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ---------- COMPOSABLE ----------
 
 @Composable
 fun MainScreen(

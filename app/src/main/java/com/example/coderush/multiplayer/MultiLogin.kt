@@ -6,24 +6,33 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.coderush.R
 import com.example.coderush.Difficulty
+import com.example.coderush.MainActivity // Import MainActivity
+import com.example.coderush.R
+import com.example.coderush.ui.theme.JockeyOne
 
 class MultiLogin : ComponentActivity() {
 
@@ -31,9 +40,15 @@ class MultiLogin : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            LoginScreen { enteredUsername ->
-                openDifficultyScreen(enteredUsername)
-            }
+            LoginScreen(
+                onLoginClick = { enteredUsername ->
+                    openDifficultyScreen(enteredUsername)
+                },
+            onBackClick = {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+                }
+            )
         }
     }
 
@@ -48,11 +63,13 @@ class MultiLogin : ComponentActivity() {
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String) -> Unit
+    onLoginClick: (String) -> Unit,
+    onBackClick: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
 
     val context = LocalContext.current
 
@@ -88,7 +105,8 @@ fun LoginScreen(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp),
+                    .height(60.dp)
+                    .focusRequester(focusRequester),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color(0xFF003B8E),
                     unfocusedTextColor = Color(0xFF003B8E),
@@ -97,6 +115,10 @@ fun LoginScreen(
                     unfocusedBorderColor = Color.White,
                     focusedContainerColor = Color.White.copy(alpha = 0.2f),
                     unfocusedContainerColor = Color.White.copy(alpha = 0.2f)
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 )
             )
 
@@ -119,13 +141,23 @@ fun LoginScreen(
                     unfocusedBorderColor = Color.White,
                     focusedContainerColor = Color.White.copy(alpha = 0.2f),
                     unfocusedContainerColor = Color.White.copy(alpha = 0.2f)
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        onLoginClick(username)
+                    }
                 )
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { onLoginClick(username) },
+                onClick = {
+                    focusManager.clearFocus()
+                    onLoginClick(username)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp),
@@ -148,5 +180,23 @@ fun LoginScreen(
                 }
             )
         }
+            //Back Button
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 48.dp)
+                    .border(2.dp, Color.White, RoundedCornerShape(24.dp))
+                    .height(60.dp)
+                    .width(150.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+            ) {
+                Text("Back", fontSize = 30.sp, fontFamily = JockeyOne)
+            }
+        }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
+

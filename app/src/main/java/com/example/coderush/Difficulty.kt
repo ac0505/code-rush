@@ -10,6 +10,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.coderush.modes.Easy
 import com.example.coderush.modes.Hard
 import com.example.coderush.modes.Normal
+import com.example.coderush.multiplayer.MultiLogin
 import com.example.coderush.ui.theme.Jersey20
 import com.example.coderush.ui.theme.JockeyOne
 
@@ -36,13 +39,13 @@ class Difficulty : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Get mode from MainActivity or MultiLogin
+        //MultiLogin
         mode = intent.getStringExtra("MODE") ?: "single"
 
         setContent {
             DifficultyScreen(
                 onEasyClick = { seconds ->
-                    // Create intent to Easy screen with mode + selected time
+                    //selected time
                     val intent = Intent(this, Easy::class.java)
                     intent.putExtra("MODE", mode)      // single/multi
                     intent.putExtra("TIME", seconds)   // selected time
@@ -50,7 +53,18 @@ class Difficulty : ComponentActivity() {
                     finish()
                 },
                 onNormalClick = { openGameScreen(Normal::class.java) },
-                onHardClick = { openGameScreen(Hard::class.java) }
+                onHardClick = { openGameScreen(Hard::class.java) },
+                onBackClick = {
+                    if (mode == "multi") {
+                        val intent = Intent(this, MultiLogin::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             )
         }
     }
@@ -68,7 +82,8 @@ class Difficulty : ComponentActivity() {
 fun DifficultyScreen(
     onEasyClick: (Int) -> Unit,
     onNormalClick: () -> Unit,
-    onHardClick: () -> Unit
+    onHardClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     var showTimePopup by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -79,7 +94,6 @@ fun DifficultyScreen(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -136,6 +150,20 @@ fun DifficultyScreen(
             ) {
                 Text("Hard Mode", fontSize = 30.sp, fontFamily = JockeyOne)
             }
+        }
+        //Back Button
+        Button(
+            onClick = onBackClick,
+            modifier = Modifier
+                .align(Alignment.BottomCenter) // This now works
+                .padding(bottom = 48.dp) // Added for better spacing
+                .border(2.dp, Color.White, RoundedCornerShape(24.dp))
+                .height(60.dp)
+                .width(150.dp),
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+        ) {
+            Text("Back", fontSize = 30.sp, fontFamily = JockeyOne) // Corrected text
         }
         if (showTimePopup) {
             // Dim background
@@ -196,6 +224,6 @@ fun DifficultyScreen(
                 }
             }
         }
-
     }
 }
+

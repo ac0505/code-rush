@@ -1,0 +1,159 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugResValues
+> Task :app:compileDebugNavigationResources
+> Task :app:processDebugGoogleServices
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:mergeDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew.bat : e: file:///C:/
+Users/user/AndroidStudioProjec
+ts/CodeRush/app/src/main/java/
+com/example/coderush/multiplay
+er/MultiCreate.kt:82:44 None 
+of the following candidates 
+is applicable:
+At line:1 char:1
++ .\gradlew.bat 
+compileDebugKotlin > 
+compile_v3.log 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (e: file:/  
+  //C:/U... is applicable::   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+class R : Any
+class R : Any
+class R : Any
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiCreate.k
+t:82:46 Unresolved reference 
+'drawable'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiCreate.k
+t:97:48 None of the following 
+candidates is applicable:
+class R : Any
+class R : Any
+class R : Any
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiCreate.k
+t:97:50 Unresolved reference 
+'drawable'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:44:35 Unresolved reference 
+'Difficulty'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:44:53 Cannot infer type for 
+this parameter. Please 
+specify it explicitly.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:44:53 Unresolved reference. 
+None of the following 
+candidates is applicable 
+because of a receiver type 
+mismatch:
+val <T> KClass<T>.java: 
+Class<T>
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:45:16 Unresolved reference 
+'putExtra'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:46:16 Unresolved reference 
+'putExtra'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:84:44 None of the following 
+candidates is applicable:
+class R : Any
+class R : Any
+class R : Any
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:84:46 Unresolved reference 
+'drawable'.
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:98:48 None of the following 
+candidates is applicable:
+class R : Any
+class R : Any
+class R : Any
+e: file:///C:/Users/user/Andro
+idStudioProjects/CodeRush/app/
+src/main/java/com/example/code
+rush/multiplayer/MultiLogin.kt
+:98:50 Unresolved reference 
+'drawable'.
+
+FAILURE: Build failed with an 
+exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileDebugKotlin'.
+> A failure occurred while 
+executing org.jetbrains.kotlin
+.compilerRunner.GradleCompiler
+RunnerWithWorkers$GradleKotlin
+CompilerWorkAction
+   > Compilation error. See 
+log for more details
+
+* Try:
+> Run with --stacktrace 
+option to get the stack trace.
+> Run with --info or --debug 
+option to get more log output.
+> Run with --scan to get full 
+insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 40s
+17 actionable tasks: 17 executed

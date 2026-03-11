@@ -5,25 +5,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 
 class Credits : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CreditScreen()
+            CreditScreen(onBack = { finish() })
         }
     }
 }
 
 @Composable
-fun CreditScreen() {
+fun CreditScreen(onBack: () -> Unit = {}) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Background image
@@ -40,10 +44,26 @@ fun CreditScreen() {
             contentDescription = "Developer",
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()          // keeps aspect ratio
-                .align(Alignment.TopCenter)   // align to top
-                .padding(top = 150.dp),        // raise 50.dp from top
+                .wrapContentHeight()
+                .align(Alignment.TopCenter)
+                .padding(top = 150.dp),
             contentScale = ContentScale.FillWidth
         )
+
+        // Back button top-left
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+        }
     }
 }

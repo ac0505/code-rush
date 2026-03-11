@@ -109,14 +109,6 @@ fun EasyGameScreen(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TIMER
-            /*Text(
-                text = formatTime(currentTime), //00:30
-                color = Color(0xFF003B8E),
-                fontFamily = Jersey20,
-                fontSize = 48.sp,
-                modifier = Modifier.padding(top = 32.dp, bottom = 10.dp)
-            )*/
             // Countdown timer
             GameTimer(
                 totalTime = totalTime,

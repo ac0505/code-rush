@@ -21,6 +21,15 @@
             android:name=".multiplayer.MultiLogin"
             android:exported="false" />
         <activity
+            android:name=".Account"
+            android:exported="false" />
+        <activity
+            android:name=".Leaderboard"
+            android:exported="false" />
+        <activity
+            android:name=".WaitingRoom"
+            android:exported="false" />
+        <activity
             android:name=".singleplayer.SingleScore"
             android:exported="false" />
         <activity

@@ -6,10 +6,10 @@ import androidx.activity.ComponentActivity
 import com.example.coderush.Account
 
 /**
- * MultiLogin is kept for backward compatibility (manifest, deep links).
- * It immediately redirects to the unified Account screen.
+ * MultiCreate is kept for backward compatibility.
+ * It immediately redirects to the unified Account screen (Sign Up tab).
  */
-class MultiLogin : ComponentActivity() {
+class MultiCreate : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startActivity(Intent(this, Account::class.java))

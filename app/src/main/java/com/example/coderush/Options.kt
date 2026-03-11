@@ -7,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -24,13 +26,13 @@ class Options : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            OptionScreen()
+            OptionScreen(onBack = { finish() })
         }
     }
 }
 
 @Composable
-fun OptionScreen() {
+fun OptionScreen(onBack: () -> Unit = {}) {
 
     var isMuted by remember { mutableStateOf(false) }
 
@@ -47,7 +49,23 @@ fun OptionScreen() {
             contentScale = ContentScale.Crop
         )
 
-        // Foreground UI (LOWERED)
+        // Back button top-left
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+
+        // Foreground UI
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -56,7 +74,7 @@ fun OptionScreen() {
 
             // Title
             Text(
-                text = "Options",
+                text = "How to Play",
                 fontSize = 60.sp,
                 fontFamily = Jersey20,
                 color = white

@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    //id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -59,6 +62,13 @@ dependencies {
     // Optional (only if you actually use XML views)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
+    // Firebase BOM
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

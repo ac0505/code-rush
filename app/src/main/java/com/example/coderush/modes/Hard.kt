@@ -36,6 +36,7 @@ class Hard : ComponentActivity() {
 
         val rawMode = intent.getStringExtra("MODE") ?: "single"
         val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
+        val roomCode = intent.getStringExtra("ROOM_CODE") ?: ""
         val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
 
         val timeInSeconds = intent.getIntExtra("TIME", 30) //default to 30s
@@ -47,7 +48,8 @@ class Hard : ComponentActivity() {
                 mode = mode,
                 totalTime = timeInSeconds,
                 questions = shuffledQuestions,
-                username = username
+                username = username,
+                roomCode = roomCode
             )
         }
     }
@@ -58,7 +60,8 @@ fun HardGameScreen(
     mode: String,
     totalTime: Int,
     questions: List<Question>,
-    username: String
+    username: String,
+    roomCode: String = ""
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
@@ -85,6 +88,7 @@ fun HardGameScreen(
                     Intent(context, targetActivity).apply {
                         putExtra("SCORE", score)
                         putExtra("USERNAME", username)
+                        putExtra("ROOM_CODE", roomCode)
                     }
                 )
                 (context as? ComponentActivity)?.finish()
@@ -115,6 +119,7 @@ fun HardGameScreen(
                         Intent(context, targetActivity).apply {
                             putExtra("SCORE", score)
                             putExtra("USERNAME", username)
+                            putExtra("ROOM_CODE", roomCode)
                         }
                     )
                     (context as? ComponentActivity)?.finish()

@@ -23,6 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import com.google.firebase.firestore.FirebaseFirestore
 import com.example.coderush.modes.Easy
 import com.example.coderush.modes.Hard
 import com.example.coderush.modes.Normal
@@ -381,11 +384,26 @@ fun DifficultyScreen(
                     }
 
                     // JOIN: go to waiting room with entered code
+                    val context = LocalContext.current
                     Button(
                         onClick = {
                             if (roomCodeInput.length == 6) {
-                                showRoomPanel = false
-                                onGoToWaitingRoom(roomCodeInput, pendingDifficulty, selectedSeconds)
+                                // Verify if room exists before proceeding
+                                val db = FirebaseFirestore.getInstance()
+                                db.collection("rooms").document(roomCodeInput).get()
+                                    .addOnSuccessListener { doc ->
+                                        if (doc.exists()) {
+                                            val d = doc.getString("difficulty") ?: pendingDifficulty
+                                            val t = doc.getLong("time")?.toInt() ?: selectedSeconds
+                                            showRoomPanel = false
+                                            onGoToWaitingRoom(roomCodeInput, d, t)
+                                        } else {
+                                            Toast.makeText(context, "Invalid room code", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(context, "Error checking code", Toast.LENGTH_SHORT).show()
+                                    }
                             }
                         },
                         enabled = roomCodeInput.length == 6,

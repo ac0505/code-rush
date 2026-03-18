@@ -37,6 +37,7 @@ class Normal : ComponentActivity() {
 
         val rawMode = intent.getStringExtra("MODE") ?: "single"
         val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
+        val roomCode = intent.getStringExtra("ROOM_CODE") ?: ""
         val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
 
         // Get time
@@ -49,7 +50,8 @@ class Normal : ComponentActivity() {
                 mode = mode,
                 totalTime = timeInSeconds,
                 questions = shuffledQuestions,
-                username = username
+                username = username,
+                roomCode = roomCode
             )
         }
     }
@@ -60,7 +62,8 @@ fun NormalGameScreen(
     mode: String,
     totalTime: Int,
     questions: List<Question>,
-    username: String
+    username: String,
+    roomCode: String = ""
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
@@ -87,6 +90,7 @@ fun NormalGameScreen(
                     Intent(context, targetActivity).apply {
                         putExtra("SCORE", score)
                         putExtra("USERNAME", username)
+                        putExtra("ROOM_CODE", roomCode)
                     }
                 )
                 (context as? ComponentActivity)?.finish()
@@ -117,6 +121,7 @@ fun NormalGameScreen(
                         Intent(context, targetActivity).apply {
                             putExtra("SCORE", score)
                             putExtra("USERNAME", username)
+                            putExtra("ROOM_CODE", roomCode)
                         }
                     )
                     (context as? ComponentActivity)?.finish()

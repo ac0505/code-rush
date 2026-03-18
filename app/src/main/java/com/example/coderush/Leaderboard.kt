@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +27,7 @@ import com.example.coderush.ui.theme.Jersey20
 import com.example.coderush.ui.theme.JockeyOne
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Query
 
 /**
@@ -46,18 +49,31 @@ class Leaderboard : ComponentActivity() {
         val username = intent.getStringExtra("USERNAME") ?: ""
         @Suppress("UNCHECKED_CAST")
         val players = intent.getStringArrayListExtra("PLAYERS") ?: arrayListOf()
+        val roomCode = intent.getStringExtra("ROOM_CODE") ?: ""
 
-        // Save score to Firestore when coming from single-player game
-        if (source == "single" && username.isNotEmpty()) {
-            saveScore(username, score)
-        }
+        val auth = FirebaseAuth.getInstance()
+        val currentUid = auth.currentUser?.uid ?: ""
 
         setContent {
+            // State for triggering refresh after Firestore save
+            var scoreSavedTrigger by remember { mutableIntStateOf(0) }
+
+            // Save score to Firestore when coming from a game
+            LaunchedEffect(Unit) {
+                if ((source == "single" || source == "multi") && username.isNotEmpty() && username != "PLAYER") {
+                    saveScore(currentUid, username, score, source, roomCode) {
+                        scoreSavedTrigger++ // Trigger refresh after save
+                    }
+                }
+            }
+
             LeaderboardScreen(
                 source = source,
                 score = score,
                 username = username,
                 multiPlayers = players,
+                roomCode = roomCode,
+                refreshTrigger = scoreSavedTrigger,
                 onPlayAgain = {
                     when (source) {
                         "single" -> {
@@ -82,14 +98,37 @@ class Leaderboard : ComponentActivity() {
         }
     }
 
-    private fun saveScore(username: String, score: Int) {
+    private fun saveScore(uid: String, username: String, score: Int, source: String, roomCode: String, onComplete: () -> Unit) {
+        if (uid.isEmpty() && source == "single") {
+            onComplete()
+            return
+        }
         val db = FirebaseFirestore.getInstance()
-        val docRef = db.collection("leaderboard").document(username)
-        docRef.get().addOnSuccessListener { doc ->
+
+        // 1. Save to global leaderboards (for single and multi)
+        val globalDocRef = db.collection("Leaderboards").document(uid.ifEmpty { username })
+        globalDocRef.get().addOnSuccessListener { doc ->
             val existing = doc.getLong("score")?.toInt() ?: 0
             if (score > existing) {
-                docRef.set(mapOf("username" to username, "score" to score))
+                globalDocRef.set(mapOf("username" to username, "score" to score))
             }
+        }
+
+        // 2. Save to temporary multiplayer leaderboard if applicable
+        if (source == "multi" && roomCode.isNotEmpty()) {
+            val multiData = mapOf(
+                "username" to username,
+                "score" to score,
+                "roomCode" to roomCode,
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+            // Use a unique ID for this entry: roomCode + uid (or username if uid is empty)
+            val entryId = "${roomCode}_${uid.ifEmpty { username }}"
+            db.collection("MultiplayerLeaderboards").document(entryId)
+                .set(multiData)
+                .addOnCompleteListener { onComplete() }
+        } else {
+            onComplete()
         }
     }
 }
@@ -103,6 +142,8 @@ fun LeaderboardScreen(
     score: Int,
     username: String,
     multiPlayers: List<String>,
+    roomCode: String = "",
+    refreshTrigger: Int = 0,
     onPlayAgain: () -> Unit,
     onMainMenu: () -> Unit
 ) {
@@ -111,29 +152,83 @@ fun LeaderboardScreen(
     val isFromGame = source == "single" || source == "multi"
     val isMulti = source == "multi"
 
-    // Single-player leaderboard entries fetched from Firestore
+    val currentUid = auth.currentUser?.uid ?: ""
+    var fetchedUsername by remember { mutableStateOf("") }
     var entries by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
 
-    if (!isMulti && isLoggedIn) {
-        LaunchedEffect(Unit) {
-            FirebaseFirestore.getInstance()
-                .collection("leaderboard")
-                .orderBy("score", Query.Direction.DESCENDING)
-                .limit(20)
-                .get()
-                .addOnSuccessListener { snap ->
-                    entries = snap.documents.mapNotNull { doc ->
-                        val u = doc.getString("username") ?: return@mapNotNull null
-                        val s = doc.getLong("score")?.toInt() ?: 0
-                        u to s
-                    }
-                    loading = false
+    // Fetch the stored username and the leaderboard entries
+    if (isLoggedIn) {
+        LaunchedEffect(refreshTrigger) {
+            val db = FirebaseFirestore.getInstance()
+            
+            // 1. Fetch user's actual saved username from Firestore
+            db.collection("Leaderboards").document(currentUid).get()
+                .addOnSuccessListener { doc ->
+                    fetchedUsername = doc.getString("username") ?: ""
                 }
-                .addOnFailureListener { loading = false }
+
+            // 2. Fetch standings
+            loading = true
+            if (isMulti && roomCode.isNotEmpty()) {
+                // Fetch from temporary multiplayer collection for this room
+                db.collection("MultiplayerLeaderboards")
+                    .whereEqualTo("roomCode", roomCode)
+                    .orderBy("score", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnSuccessListener { snap ->
+                        entries = snap.documents.mapNotNull { doc ->
+                            val u = doc.getString("username") ?: return@mapNotNull null
+                            val s = doc.getLong("score")?.toInt() ?: 0
+                            u to s
+                        }
+                        loading = false
+                    }
+                    .addOnFailureListener { loading = false }
+            } else {
+                // Fetch global standings
+                db.collection("Leaderboards")
+                    .orderBy("score", Query.Direction.DESCENDING)
+                    .limit(50)
+                    .get()
+                    .addOnSuccessListener { snap ->
+                        entries = snap.documents.mapNotNull { doc ->
+                            val u = doc.getString("username") ?: return@mapNotNull null
+                            val s = doc.getLong("score")?.toInt() ?: 0
+                            u to s
+                        }
+                        loading = false
+                    }
+                    .addOnFailureListener { loading = false }
+            }
         }
     } else {
         loading = false
+    }
+
+    val finalResolvedUsername = remember(username, fetchedUsername) {
+        when {
+            username.isNotEmpty() && username != "PLAYER" -> username
+            fetchedUsername.isNotEmpty() -> fetchedUsername
+            else -> auth.currentUser?.displayName ?: auth.currentUser?.email?.substringBefore("@") ?: "PLAYER"
+        }
+    }
+
+    // Merge fetched entries with current session score
+    val finalEntries = remember(entries, score, finalResolvedUsername, isFromGame) {
+        val list = entries.toMutableList()
+        // If coming from a game session, ensure the current score is reflected in the global table
+        if (isFromGame && finalResolvedUsername.isNotEmpty()) {
+            val existingIdx = list.indexOfFirst { it.first == finalResolvedUsername }
+            if (existingIdx != -1) {
+                if (score > list[existingIdx].second) {
+                    list[existingIdx] = finalResolvedUsername to score
+                }
+            } else {
+                list.add(finalResolvedUsername to score)
+            }
+        }
+        list.sortedByDescending { it.second }.distinctBy { it.first }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -182,12 +277,20 @@ fun LeaderboardScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    if (isLoggedIn || isFromGame) {
+                        LeaderboardHeader()
+                        Divider(
+                            color = Color.White.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
                     when {
-                        !isLoggedIn && !isMulti -> {
-                            // Not logged in and from menu → prompt to log in
+                        !isLoggedIn && !isFromGame -> {
+                            // Not logged in and not from game → prompt to log in
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -201,33 +304,7 @@ fun LeaderboardScreen(
                                 )
                             }
                         }
-                        isMulti -> {
-                            // Multiplayer results
-                            val parsed = multiPlayers
-                                .mapNotNull { entry ->
-                                    val parts = entry.split(":")
-                                    if (parts.size == 2) parts[0] to (parts[1].toIntOrNull() ?: 0) else null
-                                }
-                                .sortedByDescending { it.second }
-
-                            if (parsed.isEmpty()) {
-                                // Show current player's single entry
-                                LeaderboardRow(rank = 1, name = username, score = score, highlight = true)
-                            } else {
-                                LazyColumn {
-                                    itemsIndexed(parsed) { index, (name, s) ->
-                                        LeaderboardRow(
-                                            rank = index + 1,
-                                            name = name,
-                                            score = s,
-                                            highlight = name == username
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                    }
-                                }
-                            }
-                        }
-                        loading -> {
+                        loading && entries.isEmpty() -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -235,7 +312,7 @@ fun LeaderboardScreen(
                                 CircularProgressIndicator(color = Color.White)
                             }
                         }
-                        entries.isEmpty() -> {
+                        finalEntries.isEmpty() -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -250,13 +327,16 @@ fun LeaderboardScreen(
                             }
                         }
                         else -> {
-                            LazyColumn {
-                                itemsIndexed(entries) { index, (name, s) ->
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(bottom = 8.dp)
+                            ) {
+                                itemsIndexed(finalEntries) { index, (name, s) ->
                                     LeaderboardRow(
                                         rank = index + 1,
                                         name = name,
                                         score = s,
-                                        highlight = name == username
+                                        highlight = name == finalResolvedUsername
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                 }
@@ -304,45 +384,5 @@ fun LeaderboardScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun LeaderboardRow(rank: Int, name: String, score: Int, highlight: Boolean = false) {
-    // User's own row always gets the brightest light-blue highlight
-    val bgColor = when {
-        highlight -> Color(0xFF5BA3E0).copy(alpha = 0.40f) // Light blue — current user
-        rank == 1 -> Color(0xFFFFD700).copy(alpha = 0.30f) // Gold
-        rank == 2 -> Color(0xFFC0C0C0).copy(alpha = 0.30f) // Silver
-        rank == 3 -> Color(0xFFCD7F32).copy(alpha = 0.30f) // Bronze
-        else      -> Color.White.copy(alpha = 0.05f)
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(bgColor, RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "#$rank",
-            fontSize = 18.sp,
-            fontFamily = JockeyOne,
-            color = Color.White,
-            modifier = Modifier.width(40.dp)
-        )
-        Text(
-            text = name,
-            fontSize = 18.sp,
-            fontFamily = JockeyOne,
-            color = Color.White,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = "$score",
-            fontSize = 18.sp,
-            fontFamily = JockeyOne,
-            color = Color.White
-        )
     }
 }

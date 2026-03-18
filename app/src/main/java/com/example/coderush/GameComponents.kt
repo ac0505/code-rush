@@ -1,27 +1,21 @@
 package com.example.coderush
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.ui.theme.Jersey20
-import kotlinx.coroutines.time.delay
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.example.coderush.ui.theme.JockeyOne
 import kotlinx.coroutines.delay
 
 @Composable
@@ -95,4 +89,100 @@ fun GameTimer(
     )
 
     return currentTime
+}
+
+@Composable
+fun LeaderboardHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "RANK",
+            fontSize = 14.sp,
+            fontFamily = JockeyOne,
+            color = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.width(45.dp)
+        )
+        Text(
+            text = "NAME",
+            fontSize = 14.sp,
+            fontFamily = JockeyOne,
+            color = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = "SCORE",
+            fontSize = 14.sp,
+            fontFamily = JockeyOne,
+            color = Color.White.copy(alpha = 0.6f),
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(60.dp)
+        )
+    }
+}
+
+@Composable
+fun LeaderboardRow(rank: Int, name: String, score: Int, highlight: Boolean = false) {
+    val bgColor = when {
+        highlight -> Color(0xFF5BA3E0).copy(alpha = 0.40f)
+        rank == 1 -> Color(0xFFFFD700).copy(alpha = 0.25f)
+        rank == 2 -> Color(0xFFC0C0C0).copy(alpha = 0.25f)
+        rank == 3 -> Color(0xFFCD7F32).copy(alpha = 0.25f)
+        else      -> Color.White.copy(alpha = 0.05f)
+    }
+
+    val borderStroke = if (highlight)   BorderStroke(2.dp, Color(0xFF5BA3E0)) else null
+
+    Surface(
+        color = bgColor,
+        shape = RoundedCornerShape(8.dp),
+        border = borderStroke,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.width(45.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (rank == 1) {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = "Trophy",
+                        tint = Color(0xFFFFD700),
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "#$rank",
+                        fontSize = 18.sp,
+                        fontFamily = JockeyOne,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Text(
+                text = name,
+                fontSize = 18.sp,
+                fontFamily = JockeyOne,
+                color = Color.White,
+                modifier = Modifier.weight(1f)
+            )
+
+            Text(
+                text = "$score",
+                fontSize = 20.sp,
+                fontFamily = JockeyOne,
+                color = Color.White,
+                textAlign = TextAlign.End,
+                modifier = Modifier.width(60.dp)
+            )
+        }
+    }
 }

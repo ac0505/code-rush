@@ -16,9 +16,9 @@ class MultiScore : ComponentActivity() {
 
         val score = intent.getIntExtra("SCORE", 0)
         val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
+        val roomCode = intent.getStringExtra("ROOM_CODE") ?: ""
         @Suppress("UNCHECKED_CAST")
         val players = intent.getStringArrayListExtra("PLAYERS") ?: arrayListOf(
-            // Fallback: build a one-entry players list from this player's data
             "$username:$score"
         )
 
@@ -26,6 +26,7 @@ class MultiScore : ComponentActivity() {
             putExtra("SOURCE", "multi")
             putExtra("SCORE", score)
             putExtra("USERNAME", username)
+            putExtra("ROOM_CODE", roomCode)
             putStringArrayListExtra("PLAYERS", players)
         }
         startActivity(intent)

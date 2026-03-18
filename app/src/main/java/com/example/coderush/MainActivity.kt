@@ -63,8 +63,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun openLeaderboard() {
-        val intent = Intent(this, Leaderboard::class.java)
-        intent.putExtra("SOURCE", "menu") // from main menu, no score shown
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+        val intent = Intent(this, Leaderboard::class.java).apply {
+            putExtra("SOURCE", "menu")
+            if (user != null) {
+                putExtra("USERNAME", user.displayName ?: user.email?.substringBefore("@") ?: "")
+            }
+        }
         startActivity(intent)
     }
 
@@ -108,14 +114,14 @@ fun MainScreen(
             onClick = onSettingsClick,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(16.dp)
+                .padding(top = 48.dp, start = 32.dp)
                 .size(40.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.Settings,
                 contentDescription = "Settings",
                 tint = Color.White,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(48.dp)
             )
         }
 
@@ -124,14 +130,14 @@ fun MainScreen(
             onClick = onAccountClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(16.dp)
+                .padding(top = 48.dp, end = 32.dp)
                 .size(40.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.AccountCircle,
                 contentDescription = "Account",
                 tint = Color.White,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(48.dp)
             )
         }
 
@@ -237,7 +243,7 @@ fun MainScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3)),
                     border = BorderStroke(2.dp, Color.White)
                 ) {
-                    Text("How to play", fontSize = 16.sp, fontFamily = JockeyOne)
+                    Text("Mechanics", fontSize = 16.sp, fontFamily = JockeyOne)
                 }
 
                 Button(

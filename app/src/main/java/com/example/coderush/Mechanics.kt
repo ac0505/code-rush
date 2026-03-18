@@ -26,13 +26,13 @@ class Options : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            OptionScreen(onBack = { finish() })
+            MechanicsScreen(onBack = { finish() })
         }
     }
 }
 
 @Composable
-fun OptionScreen(onBack: () -> Unit = {}) {
+fun MechanicsScreen(onBack: () -> Unit = {}) {
 
     var isMuted by remember { mutableStateOf(false) }
 
@@ -74,7 +74,7 @@ fun OptionScreen(onBack: () -> Unit = {}) {
 
             // Title
             Text(
-                text = "How to Play",
+                text = "Mechanics",
                 fontSize = 60.sp,
                 fontFamily = Jersey20,
                 color = white

@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.coderush.AppAudio
 import com.example.coderush.AnswerButton
 import com.example.coderush.GameTimer
 import com.example.coderush.Question
@@ -28,30 +29,65 @@ import com.example.coderush.multiplayer.MultiScore
 import com.example.coderush.questions.easyQuestions
 import com.example.coderush.ui.theme.Jersey20
 import com.example.coderush.ui.theme.JockeyOne
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.delay
 
 class Easy : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Get mode from Intent extras; default to "single"
-        val rawMode = intent.getStringExtra("MODE") ?: "single"
-        val username = intent.getStringExtra("USERNAME") ?: "PLAYER"
-        val mode = if (rawMode.lowercase() == "multi") "multi" else "single"
-
-        // Get time
-        val timeInSeconds = intent.getIntExtra("TIME", 30) // default to 30s
-
-        // Shuffle questions
+        val rawMode      = intent.getStringExtra("MODE") ?: "single"
+        val username     = intent.getStringExtra("USERNAME") ?: "PLAYER"
+        val mode         = if (rawMode.lowercase() == "multi") "multi" else "single"
+        val roomCode     = intent.getStringExtra("ROOM_CODE") ?: ""
+        val timeInSeconds = intent.getIntExtra("TIME", 30)
         val shuffledQuestions = easyQuestions.shuffled()
         setContent {
             EasyGameScreen(
-                mode = mode,
-                totalTime = timeInSeconds,
-                questions = shuffledQuestions,
-                username = username
+                mode = mode, totalTime = timeInSeconds,
+                questions = shuffledQuestions, username = username, roomCode = roomCode
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppAudio.playLoop(this, R.raw.game_audio)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppAudio.stopLoop()
+    }
+}
+
+/** Saves score to MultiplayerLeaderboards/{roomCode}/scores/{username} then navigates. */
+private fun saveMultiScoreAndNavigate(
+    context: android.content.Context,
+    roomCode: String,
+    username: String,
+    score: Int
+) {
+    val navigate = {
+        context.startActivity(
+            Intent(context, MultiScore::class.java).apply {
+                putExtra("SCORE", score)
+                putExtra("USERNAME", username)
+                putExtra("ROOM_CODE", roomCode)
+            }
+        )
+        (context as? ComponentActivity)?.finish()
+    }
+    if (roomCode.isNotEmpty()) {
+        FirebaseFirestore.getInstance()
+            .collection("MultiplayerLeaderboards").document(roomCode)
+            .collection("scores").document(username)
+            .set(mapOf("username" to username, "score" to score,
+                       "timestamp" to FieldValue.serverTimestamp()))
+            .addOnCompleteListener { navigate() }
+    } else {
+        navigate()
     }
 }
 
@@ -60,44 +96,47 @@ fun EasyGameScreen(
     mode: String,
     totalTime: Int,
     questions: List<Question>,
-    username: String
+    username: String,
+    roomCode: String = ""
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var selectedAnswer by remember { mutableStateOf<Int?>(null) }
-    var showResult by remember { mutableStateOf(false) }
-    var moveToNext by remember { mutableStateOf(false) }
-    var score by remember { mutableIntStateOf(0) }
+    var selectedAnswer       by remember { mutableStateOf<Int?>(null) }
+    var showResult           by remember { mutableStateOf(false) }
+    var moveToNext           by remember { mutableStateOf(false) }
+    var score                by remember { mutableIntStateOf(0) }
 
     val question = questions[currentQuestionIndex]
-    val context = LocalContext.current
+    val context  = LocalContext.current
 
-    // Auto-next question / end game logic
+    fun endGame() {
+        if (mode.lowercase() == "multi") saveMultiScoreAndNavigate(context, roomCode, username, score)
+        else {
+            context.startActivity(Intent(context, SingleScore::class.java).apply {
+                putExtra("SCORE", score); putExtra("USERNAME", username)
+            })
+            (context as? ComponentActivity)?.finish()
+        }
+    }
+
     LaunchedEffect(moveToNext) {
         if (moveToNext) {
             delay(1000)
-            selectedAnswer = null
-            showResult = false
-
-            if (currentQuestionIndex + 1 < easyQuestions.size) {
-                currentQuestionIndex += 1
-            } else {
-                // Navigate based on mode
-                val targetActivity = if (mode.lowercase() == "multi") MultiScore::class.java else SingleScore::class.java
-                context.startActivity(
-                    Intent(context, targetActivity).apply {
-                        putExtra("SCORE", score)
-                        putExtra("USERNAME", username)
-                    }
-                )
-                (context as? ComponentActivity)?.finish()
-            }
-
+            selectedAnswer = null; showResult = false
+            if (currentQuestionIndex + 1 < easyQuestions.size) currentQuestionIndex += 1
+            else endGame()
             moveToNext = false
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Background image
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val screenH = maxHeight
+        val questionBoxH = (screenH * 0.28f).coerceIn(180.dp, 300.dp)
+        val questionFontSp = (screenH.value * 0.028f).coerceIn(15f, 22f)
+        val scoreFontSp    = (screenH.value * 0.030f).coerceIn(16f, 26f)
+        val btnH           = (screenH * 0.09f).coerceIn(54.dp, 78.dp)
+        val btnGap         = (screenH * 0.018f).coerceIn(8.dp, 18.dp)
+        val midSpacer      = (screenH * 0.035f).coerceIn(12.dp, 36.dp)
+
         Image(
             painter = painterResource(id = R.drawable.game_bg),
             contentDescription = "Background",
@@ -109,74 +148,57 @@ fun EasyGameScreen(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Countdown timer
-            GameTimer(
-                totalTime = totalTime,
-                onTimeUp = {
-                    val targetActivity = if (mode.lowercase() == "multi") MultiScore::class.java else SingleScore::class.java
-                    context.startActivity(
-                        Intent(context, targetActivity).apply {
-                            putExtra("SCORE", score)
-                            putExtra("USERNAME", username)
-                        }
-                    )
-                    (context as? ComponentActivity)?.finish()
-                }
-            )
+            GameTimer(totalTime = totalTime, onTimeUp = { endGame() })
 
-            // QUESTION BOX
             Box(
                 modifier = Modifier
-                    .height(260.dp)
+                    .height(questionBoxH)
                     .fillMaxWidth(0.9f)
                     .border(2.dp, Color.White, RoundedCornerShape(24.dp))
                     .background(Color(0xFF003B8E), RoundedCornerShape(24.dp))
                     .padding(16.dp)
             ) {
-                // SCORE top-left
                 Text(
                     text = "Score: $score",
                     color = Color.White,
-                    fontFamily = Jersey20       ,
-                    fontSize = 24.sp,
+                    fontFamily = Jersey20,
+                    fontSize = scoreFontSp.sp,
                     modifier = Modifier.align(Alignment.TopStart)
                 )
-
-                // QUESTION text centered
                 Text(
                     text = question.question,
                     color = Color.White,
                     fontFamily = JockeyOne,
-                    fontSize = 20.sp,
+                    fontSize = questionFontSp.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(midSpacer))
 
-            // ANSWERS (full-width buttons)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(btnGap)
             ) {
                 question.choices.forEachIndexed { index, choice ->
                     AnswerButton(
                         text = choice,
                         isSelected = selectedAnswer == index,
-                        isCorrect = index == question.correctIndex,
-                        showResult = showResult
+                        isCorrect  = index == question.correctIndex,
+                        showResult = showResult,
+                        modifier   = Modifier.height(btnH)
                     ) {
                         if (selectedAnswer == null) {
                             selectedAnswer = index
-                            showResult = true
-
-                            // Increment score if correct
+                            showResult     = true
                             if (index == question.correctIndex) {
                                 score++
+                                AppAudio.playOneShot(context, R.raw.correct_audio)
+                            } else {
+                                AppAudio.playOneShot(context, R.raw.incorrect_audio)
                             }
-
                             moveToNext = true
                         }
                     }
@@ -185,5 +207,3 @@ fun EasyGameScreen(
         }
     }
 }
-
-

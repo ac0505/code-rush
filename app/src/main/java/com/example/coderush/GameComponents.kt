@@ -11,6 +11,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -19,30 +20,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coderush.ui.theme.Jersey20
-import kotlinx.coroutines.time.delay
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 
+/**
+ * AnswerButton – shows the answer choice with correct/incorrect feedback colours.
+ * Accepts an optional [modifier] so callers can override the default height.
+ */
 @Composable
 fun AnswerButton(
     text: String,
     isSelected: Boolean,
     isCorrect: Boolean,
     showResult: Boolean,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     onClick: () -> Unit
 ) {
     val backgroundColor = when {
-        showResult && isCorrect -> Color(0xFF4CAF50)        // GREEN
+        showResult && isCorrect               -> Color(0xFF4CAF50) // GREEN
         showResult && isSelected && !isCorrect -> Color(0xFFF44336) // RED
-        else -> Color(0xFF3A78D7)                           // BLUE
+        else                                  -> Color(0xFF3A78D7) // BLUE
     }
 
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
+        modifier = modifier
             .border(2.dp, Color.White, RoundedCornerShape(24.dp)),
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
@@ -73,7 +74,6 @@ fun GameTimer(
 ): Int {
     var currentTime by remember { mutableStateOf(totalTime) }
 
-    // Countdown logic
     LaunchedEffect(currentTime) {
         if (currentTime > 0) {
             delay(1000)
@@ -83,9 +83,7 @@ fun GameTimer(
         }
     }
 
-    // Change color if 10s or less
     val textColor = if (currentTime <= 10) Color.Red else Color(0xFF003B8E)
-
     Text(
         text = formatTime(currentTime),
         color = textColor,

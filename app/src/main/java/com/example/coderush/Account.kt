@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.coderush.ui.theme.JockeyOne
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 
 class Account : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -39,8 +41,10 @@ class Account : ComponentActivity() {
         setContent {
             val user = auth.currentUser
             if (user != null) {
+                val userDisplayName = user.displayName
+                    ?: user.email?.substringBefore("@") ?: "User"
                 AccountProfileScreen(
-                    displayName = user.displayName ?: user.email?.substringBefore("@") ?: "User",
+                    displayName = userDisplayName,
                     onLogOut = {
                         auth.signOut()
                         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
@@ -66,6 +70,16 @@ class Account : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        AppAudio.playLoop(this, R.raw.mainscreen_audio)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppAudio.stopLoop()
+    }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -80,6 +94,18 @@ fun AccountProfileScreen(
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(displayName) }
+    var bestScore  by remember { mutableStateOf<Int?>(null) }
+
+    // Fetch best score from Firestore
+    LaunchedEffect(displayName) {
+        FirebaseFirestore.getInstance()
+            .collection("Leaderboards")
+            .document(displayName)
+            .get()
+            .addOnSuccessListener { doc ->
+                bestScore = doc.getLong("bestScore")?.toInt()
+            }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -169,7 +195,26 @@ fun AccountProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(52.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Best Score display
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(2.dp, Color(0xFFFFD700), RoundedCornerShape(16.dp))
+                    .background(Color(0xFF1A3A7A).copy(alpha = 0.6f), RoundedCornerShape(16.dp))
+                    .padding(vertical = 14.dp, horizontal = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (bestScore != null) "🏆  BEST SCORE: $bestScore" else "🏆  BEST SCORE: --",
+                    fontSize = 22.sp,
+                    fontFamily = JockeyOne,
+                    color = Color(0xFFFFD700)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(36.dp))
 
             // Log Out / Back
             Row(

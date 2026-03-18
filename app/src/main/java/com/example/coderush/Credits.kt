@@ -16,6 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import com.example.coderush.AppAudio
+import com.example.coderush.R
 
 class Credits : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +25,16 @@ class Credits : ComponentActivity() {
         setContent {
             CreditScreen(onBack = { finish() })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppAudio.playLoop(this, R.raw.mainscreen_audio)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppAudio.stopLoop()
     }
 }
 

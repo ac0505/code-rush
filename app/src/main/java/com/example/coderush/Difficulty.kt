@@ -29,6 +29,8 @@ import com.example.coderush.modes.Normal
 import com.example.coderush.ui.theme.Jersey20
 import com.example.coderush.ui.theme.JockeyOne
 import com.google.firebase.auth.FirebaseAuth
+import com.example.coderush.AppAudio
+import com.example.coderush.R
 
 class Difficulty : ComponentActivity() {
 
@@ -75,6 +77,16 @@ class Difficulty : ComponentActivity() {
                 }
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppAudio.playLoop(this, R.raw.mainscreen_audio)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppAudio.stopLoop()
     }
 }
 

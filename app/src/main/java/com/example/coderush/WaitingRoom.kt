@@ -34,6 +34,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.delay
+import com.example.coderush.AppAudio
+import com.example.coderush.R
 
 /**
  * WaitingRoom – Multiplayer lobby
@@ -116,6 +118,16 @@ class WaitingRoom : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         roomListener?.remove()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppAudio.playLoop(this, R.raw.mainscreen_audio)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppAudio.stopLoop()
     }
 }
 

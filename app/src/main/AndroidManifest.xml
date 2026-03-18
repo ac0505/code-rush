@@ -45,7 +45,7 @@
             android:name=".Credits"
             android:exported="false" />
         <activity
-            android:name=".Options"
+            android:name=".About"
             android:exported="false" />
         <activity
             android:name=".Difficulty"

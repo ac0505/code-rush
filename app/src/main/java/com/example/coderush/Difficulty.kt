@@ -65,13 +65,13 @@ class Difficulty : ComponentActivity() {
                     startActivity(intent)
                     finish()
                 },
-                onGoToWaitingRoom = { roomCode, difficulty, seconds ->
+                onGoToWaitingRoom = { roomCode, difficulty, seconds, isHost ->
                     val intent = Intent(this, WaitingRoom::class.java)
                     intent.putExtra("ROOM_CODE", roomCode)
                     intent.putExtra("DIFFICULTY", difficulty)
                     intent.putExtra("TIME", seconds)
                     intent.putExtra("USERNAME", username)
-                    intent.putExtra("IS_HOST", true)
+                    intent.putExtra("IS_HOST", isHost)
                     startActivity(intent)
                     finish()
                 }
@@ -99,7 +99,7 @@ fun DifficultyScreen(
     username: String,
     onBack: () -> Unit,
     onStartGame: (difficulty: String, seconds: Int) -> Unit,
-    onGoToWaitingRoom: (roomCode: String, difficulty: String, seconds: Int) -> Unit
+    onGoToWaitingRoom: (roomCode: String, difficulty: String, seconds: Int, isHost: Boolean) -> Unit
 ) {
     val isMulti = mode.lowercase() == "multi"
 
@@ -382,7 +382,7 @@ fun DifficultyScreen(
                     Button(
                         onClick = {
                             showRoomPanel = false
-                            onGoToWaitingRoom(generatedCode, pendingDifficulty, selectedSeconds)
+                            onGoToWaitingRoom(generatedCode, pendingDifficulty, selectedSeconds, true)
                         },
                         modifier = Modifier.fillMaxWidth().height(55.dp),
                         shape = RoundedCornerShape(24.dp),
@@ -397,7 +397,7 @@ fun DifficultyScreen(
                         onClick = {
                             if (roomCodeInput.length == 6) {
                                 showRoomPanel = false
-                                onGoToWaitingRoom(roomCodeInput, pendingDifficulty, selectedSeconds)
+                                onGoToWaitingRoom(roomCodeInput, pendingDifficulty, selectedSeconds, false)
                             }
                         },
                         enabled = roomCodeInput.length == 6,

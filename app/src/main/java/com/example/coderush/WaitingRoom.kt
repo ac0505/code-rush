@@ -78,6 +78,7 @@ class WaitingRoom : ComponentActivity() {
                 )
             )
         } else {
+            // Check if room exists first? For now just try update
             roomRef.update("players", FieldValue.arrayUnion(username))
         }
 
@@ -145,8 +146,9 @@ fun WaitingRoomScreen(
     onStartGame: () -> Unit,
     onGameStarted: () -> Unit
 ) {
-    // Live player list from Firestore
+    // Live state from Firestore
     var players by remember { mutableStateOf(listOf(username)) }
+    var roomHost by remember { mutableStateOf("") }
     var gameStarted by remember { mutableStateOf(false) }
 
     // Firestore listener
@@ -158,13 +160,20 @@ fun WaitingRoomScreen(
                     @Suppress("UNCHECKED_CAST")
                     val p = snap.get("players") as? List<String> ?: emptyList()
                     players = p
+                    roomHost = snap.getString("host") ?: ""
                     val started = snap.getBoolean("started") ?: false
                     if (started && !gameStarted) {
                         gameStarted = true
                     }
+                } else {
+                    // Room might have been deleted
+                    onBack()
                 }
             }
     }
+
+    // Is the LOCAL user the host?
+    val localIsHost = roomHost == username
 
     // Navigate when host starts
     LaunchedEffect(gameStarted) {
@@ -257,7 +266,7 @@ fun WaitingRoomScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── FLOATING PLAYER AVATARS ──
+            // ── SCATTERED PLAYER AVATARS ──
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -270,26 +279,21 @@ fun WaitingRoomScreen(
                         Text("Waiting for players...", fontFamily = JockeyOne, color = Color.White.copy(alpha = 0.6f))
                     }
                 } else {
-                    // Simple wrapping row of floating avatars
-                    val rows = players.chunked(3)
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        rows.forEach { rowPlayers ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
-                            ) {
-                                rowPlayers.forEach { playerName ->
-                                    FloatingPlayerAvatar(
-                                        name = playerName,
-                                        isCurrentUser = playerName == username,
-                                        isHost = playerName == players.firstOrNull()
-                                    )
-                                }
-                            }
+                    // Use stable offsets based on player name hash – "scattered"
+                    players.forEachIndexed { index, playerName ->
+                        val seed = playerName.hashCode()
+                        val randomX = ((seed % 70).toFloat() / 100f).coerceIn(0f, 0.7f)
+                        val randomY = (((seed / 7) % 70).toFloat() / 100f).coerceIn(0f, 0.7f)
+
+                        Box(
+                            modifier = Modifier.fillMaxSize(0.3f)
+                                .align(androidx.compose.ui.BiasAlignment(randomX * 2 - 1, randomY * 2 - 1))
+                        ) {
+                            FloatingPlayerAvatar(
+                                name = playerName,
+                                isCurrentUser = playerName == username,
+                                isHost = playerName == roomHost
+                            )
                         }
                     }
                 }
@@ -297,7 +301,7 @@ fun WaitingRoomScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (isHost) {
+            if (localIsHost) {
                 Button(
                     onClick = onStartGame,
                     enabled = players.size >= 1,

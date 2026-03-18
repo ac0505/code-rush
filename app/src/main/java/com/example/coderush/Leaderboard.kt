@@ -60,7 +60,6 @@ class Leaderboard : ComponentActivity() {
                 username = username,
                 roomCode = roomCode,
                 onPlayAgain = {
-                    if (roomCode.isNotEmpty()) deleteMultiRoom(roomCode)
                     when (source) {
                         "single" -> {
                             startActivity(Intent(this, Difficulty::class.java))
@@ -77,7 +76,6 @@ class Leaderboard : ComponentActivity() {
                     }
                 },
                 onMainMenu = {
-                    if (roomCode.isNotEmpty()) deleteMultiRoom(roomCode)
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }

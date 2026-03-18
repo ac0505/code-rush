@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import com.example.coderush.ui.theme.Jersey20
+import com.example.coderush.ui.theme.JockeyOne
 import kotlinx.coroutines.delay
 
 /**
@@ -31,8 +33,10 @@ fun AnswerButton(
     text: String,
     isSelected: Boolean,
     isCorrect: Boolean,
-    showResult: Boolean,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    showResult: Boolean = false,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .height(62.dp),
     onClick: () -> Unit
 ) {
     val backgroundColor = when {
@@ -44,18 +48,20 @@ fun AnswerButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .border(2.dp, Color.White, RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp),
+            .border(2.dp, Color.White, RoundedCornerShape(50.dp)),
+        shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
     ) {
         Text(
             text = text,
             color = Color.White,
-            fontFamily = Jersey20,
+            fontFamily = JockeyOne,
+            fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
             softWrap = true,
-            maxLines = 2
+            maxLines = 2,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }
 }

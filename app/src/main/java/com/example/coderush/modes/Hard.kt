@@ -128,15 +128,7 @@ fun HardGameScreen(
         }
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val screenH = maxHeight
-        val questionBoxH   = (screenH * 0.28f).coerceIn(180.dp, 300.dp)
-        val questionFontSp = (screenH.value * 0.028f).coerceIn(15f, 22f)
-        val scoreFontSp    = (screenH.value * 0.030f).coerceIn(16f, 26f)
-        val btnH           = (screenH * 0.09f).coerceIn(54.dp, 78.dp)
-        val btnGap         = (screenH * 0.018f).coerceIn(8.dp, 18.dp)
-        val midSpacer      = (screenH * 0.035f).coerceIn(12.dp, 36.dp)
-
+    Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.game_bg),
             contentDescription = "Background",
@@ -152,7 +144,7 @@ fun HardGameScreen(
 
             Box(
                 modifier = Modifier
-                    .height(questionBoxH)
+                    .height(260.dp)
                     .fillMaxWidth(0.9f)
                     .border(2.dp, Color.White, RoundedCornerShape(24.dp))
                     .background(Color(0xFF003B8E), RoundedCornerShape(24.dp))
@@ -162,33 +154,32 @@ fun HardGameScreen(
                     text = "Score: $score",
                     color = Color.White,
                     fontFamily = Jersey20,
-                    fontSize = scoreFontSp.sp,
+                    fontSize = 24.sp,
                     modifier = Modifier.align(Alignment.TopStart)
                 )
                 Text(
                     text = question.question,
                     color = Color.White,
                     fontFamily = JockeyOne,
-                    fontSize = questionFontSp.sp,
+                    fontSize = 20.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
-            Spacer(modifier = Modifier.height(midSpacer))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(btnGap)
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 question.choices.forEachIndexed { index, choice ->
                     AnswerButton(
                         text = choice,
                         isSelected = selectedAnswer == index,
                         isCorrect  = index == question.correctIndex,
-                        showResult = showResult,
-                        modifier   = Modifier.height(btnH)
+                        showResult = showResult
                     ) {
                         if (selectedAnswer == null) {
                             selectedAnswer = index

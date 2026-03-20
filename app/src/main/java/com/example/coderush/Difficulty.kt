@@ -148,7 +148,7 @@ fun DifficultyScreen(
             Text(
                 "Select Difficulty:",
                 fontFamily = Jersey20,
-                fontSize = 50.sp,
+                fontSize = 52.sp,
                 color = Color.White
             )
 

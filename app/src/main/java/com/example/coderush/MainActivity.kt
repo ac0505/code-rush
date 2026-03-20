@@ -244,7 +244,7 @@ fun MainScreen(
             onClick = { showSettings = true },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(16.dp)
+                .padding(start=16.dp, end=16.dp, top=32.dp, bottom=16.dp)
                 .size(40.dp)
         ) {
             Icon(
@@ -260,7 +260,7 @@ fun MainScreen(
             onClick = onAccountClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(16.dp)
+                .padding(start=16.dp, end=16.dp, top=32.dp, bottom=16.dp)
                 .size(40.dp)
         ) {
             Icon(
